@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CorrigeAI - Corretor Inteligente para Professores e Alunos</title>
+    <meta name="description" content="Plataforma inteligente de correção de textos e redações para professores e alunos. Revisão automática, apontamento de erros e notas.">
+    <link rel="stylesheet" href="https://cdn.squeleton.dev/squeleton.v4.min.css">
+    <script src="https://cdn.squeleton.dev/squeleton-main.v4.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --primary-light: #818CF8;
+            --secondary: #0EA5E9;
+            --accent: #F59E0B;
+            --success: #10B981;
+            --danger: #EF4444;
+            --dark: #1E1B4B;
+            --gray-50: #F8FAFC;
+            --gray-100: #F1F5F9;
+            --gray-200: #E2E8F0;
+            --gray-300: #CBD5E1;
+            --gray-400: #94A3B8;
+            --gray-500: #64748B;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1E293B;
+            --gradient-primary: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #0EA5E9 100%);
+            --gradient-hero: linear-gradient(160deg, #1E1B4B 0%, #312E81 40%, #4F46E5 100%);
+            --gradient-card: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+            --shadow-xl: 0 16px 48px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--gray-800);
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; transition: all 0.3s ease; }
+
+        /* Botões */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            line-height: 1.4;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(79,70,229,0.35);
+        }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(79,70,229,0.45); }
+        .btn-white {
+            background: #fff;
+            color: var(--primary);
+            box-shadow: var(--shadow-md);
+        }
+        .btn-white:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        .btn-outline:hover { background: var(--primary); color: #fff; }
+        .btn-lg { padding: 18px 40px; font-size: 18px; border-radius: 14px; }
+        .btn-sm { padding: 10px 20px; font-size: 14px; border-radius: 8px; }
+
+        /* Header */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1111;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+        .site-header.scrolled {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-sm);
+        }
+        .site-header.scrolled .nav-link { color: var(--gray-700); }
+        .site-header.scrolled .logo-text { color: var(--primary); }
+        .logo-text { font-size: 24px; font-weight: 800; color: #fff; transition: color 0.3s; }
+        .logo-text span { color: var(--accent); }
+        .nav-link { color: rgba(255,255,255,0.85); font-weight: 500; font-size: 15px; transition: color 0.3s; }
+        .nav-link:hover { color: #fff; }
+        .site-header.scrolled .nav-link:hover { color: var(--primary); }
+
+        /* Hero */
+        .hero-section {
+            background: var(--gradient-hero);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(129,140,248,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(14,165,233,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50px;
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+            font-weight: 500;
+            backdrop-filter: blur(8px);
+        }
+        .hero-badge .dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; }
+        .hero-stats {
+            display: flex;
+            gap: 48px;
+            margin-top: 48px;
+        }
+        .hero-stat-number { font-size: 32px; font-weight: 800; color: #fff; }
+        .hero-stat-label { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+        .hero-visual {
+            position: relative;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 24px;
+            backdrop-filter: blur(8px);
+        }
+        .hero-editor {
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Inter', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.8);
+        }
+        .hero-editor .line-error { border-bottom: 2px wavy var(--danger); }
+        .hero-editor .line-suggestion { border-bottom: 2px wavy var(--accent); }
+        .hero-editor .correction-popup {
+            display: inline-block;
+            background: var(--danger);
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .hero-editor .suggestion-popup {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .hero-score {
+            position: absolute;
+            top: -16px;
+            right: -16px;
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(79,70,229,0.4);
+        }
+        .hero-score .score-num { font-size: 28px; font-weight: 800; line-height: 1; }
+        .hero-score .score-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+
+        /* Section Titles */
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            background: var(--gradient-card);
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+        .section-title { color: var(--dark); }
+        .section-desc { color: var(--gray-500); max-width: 600px; }
+
+        /* Feature Cards */
+        .feature-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .feature-icon.purple { background: #EEF2FF; color: var(--primary); }
+        .feature-icon.blue { background: #E0F2FE; color: var(--secondary); }
+        .feature-icon.amber { background: #FEF3C7; color: var(--accent); }
+        .feature-icon.green { background: #D1FAE5; color: var(--success); }
+        .feature-icon.red { background: #FEE2E2; color: var(--danger); }
+        .feature-icon.indigo { background: #E0E7FF; color: #6366F1; }
+
+        /* How it Works */
+        .step-card {
+            position: relative;
+            text-align: center;
+        }
+        .step-number {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: #fff;
+            font-size: 24px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(79,70,229,0.3);
+        }
+        .step-connector {
+            position: absolute;
+            top: 32px;
+            left: calc(50% + 40px);
+            width: calc(100% - 80px);
+            height: 2px;
+            background: var(--gray-200);
+        }
+        .step-connector::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: -3px;
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid var(--gray-300);
+            border-bottom: 2px solid var(--gray-300);
+            transform: rotate(-45deg);
+        }
+
+        /* Demo Section */
+        .demo-container {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+        }
+        .demo-header {
+            background: var(--gradient-primary);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .demo-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .demo-textarea {
+            width: 100%;
+            min-height: 200px;
+            border: none;
+            padding: 24px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--gray-700);
+            resize: vertical;
+            outline: none;
+        }
+        .demo-textarea::placeholder { color: var(--gray-400); }
+        .demo-toolbar {
+            padding: 16px 24px;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--gray-50);
+        }
+        .demo-result {
+            padding: 24px;
+            border-top: 1px solid var(--gray-200);
+            display: none;
+        }
+        .demo-result.active { display: block; }
+        .error-item {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .error-item.grammar { background: #FEF2F2; border-left: 3px solid var(--danger); }
+        .error-item.style { background: #FEF3C7; border-left: 3px solid var(--accent); }
+        .error-item.tip { background: #ECFDF5; border-left: 3px solid var(--success); }
+        .error-tag {
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .error-tag.grammar { background: var(--danger); color: #fff; }
+        .error-tag.style { background: var(--accent); color: #fff; }
+        .error-tag.tip { background: var(--success); color: #fff; }
+        .grade-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        .grade-circle.high { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); color: #065F46; }
+        .grade-circle.medium { background: linear-gradient(135deg, #FEF3C7, #FDE68A); color: #92400E; }
+        .grade-circle.low { background: linear-gradient(135deg, #FEE2E2, #FECACA); color: #991B1B; }
+
+        /* Personas */
+        .persona-card {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+        }
+        .persona-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-xl); }
+        .persona-header {
+            padding: 32px 32px 24px;
+        }
+        .persona-header.teacher { background: linear-gradient(135deg, #4F46E5, #7C3AED); }
+        .persona-header.student { background: linear-gradient(135deg, #0EA5E9, #06B6D4); }
+        .persona-list { list-style: none; padding: 0; margin: 0; }
+        .persona-list li {
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            color: var(--gray-700);
+            border-bottom: 1px solid var(--gray-100);
+        }
+        .persona-list li:last-child { border-bottom: none; }
+        .persona-list .li-icon { color: var(--success); font-size: 16px; }
+
+        /* Testimonials */
+        .testimonial-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            height: 100%;
+        }
+        .testimonial-stars { color: var(--accent); font-size: 16px; display: flex; gap: 4px; margin-bottom: 16px; }
+        .testimonial-text { color: var(--gray-600); font-size: 15px; line-height: 1.7; font-style: italic; }
+        .testimonial-author { display: flex; align-items: center; gap: 12px; margin-top: 20px; }
+        .testimonial-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        /* Pricing */
+        .pricing-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 32px;
+            box-shadow: var(--shadow-md);
+            border: 2px solid var(--gray-200);
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        .pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-xl); }
+        .pricing-card.featured { border-color: var(--primary); position: relative; }
+        .pricing-popular {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient-primary);
+            color: #fff;
+            padding: 6px 24px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .pricing-price { font-size: 48px; font-weight: 800; color: var(--dark); }
+        .pricing-price span { font-size: 16px; font-weight: 500; color: var(--gray-500); }
+        .pricing-features { list-style: none; padding: 0; margin: 24px 0; text-align: left; }
+        .pricing-features li {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            color: var(--gray-600);
+            border-bottom: 1px solid var(--gray-100);
+        }
+        .pricing-features li:last-child { border-bottom: none; }
+
+        /* CTA Section */
+        .cta-section {
+            background: var(--gradient-hero);
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Footer */
+        .site-footer {
+            background: var(--gray-800);
+            color: var(--gray-400);
+        }
+        .footer-link { color: var(--gray-400); font-size: 14px; transition: color 0.3s; }
+        .footer-link:hover { color: #fff; }
+
+        /* Mobile Menu */
+        .mobile-menu-btn { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(30,27,75,0.98);
+            z-index: 1111;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+        }
+        .mobile-menu.active { display: flex; }
+        .mobile-menu a { color: #fff; font-size: 20px; font-weight: 600; }
+        .mobile-close { position: absolute; top: 24px; right: 24px; background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; }
+
+        /* Counter animation */
+        .counter-value { font-variant-numeric: tabular-nums; }
+
+        /* Example Buttons */
+        .example-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 24px; border-bottom: 1px solid var(--gray-200); background: #fff; }
+        .example-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid var(--gray-200);
+            background: var(--gray-50);
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+        .example-chip:hover { border-color: var(--primary); color: var(--primary); background: #EEF2FF; transform: translateY(-1px); }
+        .example-chip .chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .example-chip .chip-dot.red { background: var(--danger); }
+        .example-chip .chip-dot.amber { background: var(--accent); }
+        .example-chip .chip-dot.green { background: var(--success); }
+        .example-chip .chip-dot.blue { background: var(--secondary); }
+        .example-chip .chip-dot.purple { background: #7C3AED; }
+        .example-label { padding: 16px 24px 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-400); background: #fff; }
+
+        /* Scroll reveal */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 991px) {
+            .mobile-menu-btn { display: block; }
+            .desktop-nav { display: none !important; }
+            .hero-stats { gap: 24px; flex-wrap: wrap; }
+            .hero-stat-number { font-size: 24px; }
+            .step-connector { display: none; }
+        }
+
+        @media (max-width: 639px) {
+            .hero-stats { gap: 16px; }
+            .hero-score { width: 60px; height: 60px; top: -10px; right: -10px; }
+            .hero-score .score-num { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="site-header p-15-tb" id="siteHeader">
+        <div class="container">
+            <div class="d-flex f-items-center f-justify-between">
+                <a href="#" class="logo-text">Corrige<span>AI</span></a>
+                <nav class="d-flex f-items-center f-gap-30 desktop-nav">
+                    <a href="#funcionalidades" class="nav-link">Funcionalidades</a>
+                    <a href="#como-funciona" class="nav-link">Como Funciona</a>
+                    <a href="#demonstracao" class="nav-link">Demonstrar</a>
+                    <a href="#planos" class="nav-link">Planos</a>
+                    <a href="#" class="btn btn-sm btn-white">
+                        <span class="iccon-bb-log-in"></span> Entrar
+                    </a>
+                </nav>
+                <button class="mobile-menu-btn" onclick="document.getElementById('mobileMenu').classList.add('active')">
+                    <span class="iccon-menu-1"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-close" onclick="this.parentElement.classList.remove('active')">
+            <span class="iccon-close-1"></span>
+        </button>
+        <a href="#funcionalidades" onclick="this.parentElement.classList.remove('active')">Funcionalidades</a>
+        <a href="#como-funciona" onclick="this.parentElement.classList.remove('active')">Como Funciona</a>
+        <a href="#demonstracao" onclick="this.parentElement.classList.remove('active')">Demonstrar</a>
+        <a href="#planos" onclick="this.parentElement.classList.remove('active')">Planos</a>
+        <a href="#" class="btn btn-primary">Entrar</a>
+    </div>
+
+    <main>
+
+        <!-- Hero Section -->
+        <section class="hero-section h-100vh f-justify-center p-80-t xs-p-60-t" id="hero">
+            <div class="container ps-relative z-index-1">
+                <div class="row f-items-center gap-40 xs-gap-30">
+                    <div class="c-xs-12 c-md-6">
+                        <div class="hero-badge animated fadeIn m-20-b">
+                            <span class="dot anima-pulse"></span>
+                            Plataforma Educacional Inteligente
+                        </div>
+                        <h1 class="fs-15 sm-fs-13 xs-fs-11 fw-800 lh-1-1 m-20-b" style="color: #fff;">
+                            Corrija textos e redações com inteligência
+                        </h1>
+                        <p class="fs-9 sm-fs-8 lh-1-7 m-30-b" style="color: rgba(255,255,255,0.7);">
+                            A plataforma que conecta professores e alunos. Envie textos, receba correções detalhadas, veja seus erros apontados e melhore sua escrita com notas e feedback personalizado.
+                        </p>
+                        <div class="d-flex f-gap-15 f-wrap">
+                            <a href="#demonstracao" class="btn btn-primary btn-lg">
+                                <span class="iccon-edit-1"></span> Testar Agora
+                            </a>
+                            <a href="#como-funciona" class="btn btn-outline btn-lg" style="border-color: rgba(255,255,255,0.3); color: #fff;">
+                                <span class="iccon-play-1"></span> Como Funciona
+                            </a>
+                        </div>
+                        <div class="hero-stats xs-f-justify-center">
+                            <div>
+                                <div class="hero-stat-number counter-value" data-target="15000">15.000+</div>
+                                <div class="hero-stat-label">Textos Corrigidos</div>
+                            </div>
+                            <div>
+                                <div class="hero-stat-number counter-value" data-target="2500">2.500+</div>
+                                <div class="hero-stat-label">Professores</div>
+                            </div>
+                            <div>
+                                <div class="hero-stat-number counter-value" data-target="12000">12.000+</div>
+                                <div class="hero-stat-label">Alunos Ativos</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-md-6">
+                        <div class="hero-visual wow fadeInRight" data-wow-delay="0.3s">
+                            <div class="hero-score animated pulse delay-1000">
+                                <span class="score-num">8.5</span>
+                                <span class="score-label">Nota</span>
+                            </div>
+                            <div class="hero-editor">
+                                <p style="color: rgba(255,255,255,0.4); margin-bottom: 12px; font-size: 12px;">redacao_enem_2025.txt</p>
+                                <p>A educacao no Brasil <span class="line-error">vem</span><span class="correction-popup">veio</span> passando por diversas transformacoes ao longo dos anos.</p>
+                                <p style="margin-top: 12px;">Nesse <span class="line-suggestion">sentido</span><span class="suggestion-popup">contexto</span>, e importante considerar que as novas tecnologias <span class="line-error">afeta</span><span class="correction-popup">afetam</span> diretamente o modo como aprendemos.</p>
+                                <p style="margin-top: 12px;">Portanto, <span class="line-suggestion">conclui-se que</span><span class="suggestion-popup">evitar cliche</span> a educacao precisa se adaptar...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="p-80-tb xs-p-50-tb" id="funcionalidades" style="background: var(--gray-50);">
+            <div class="container">
+                <div class="text-center m-50-b">
+                    <span class="section-badge wow fadeInUp">
+                        <span class="iccon-idea-1"></span> Funcionalidades
+                    </span>
+                    <h2 class="fs-13 sm-fs-11 xs-fs-10 fw-800 section-title m-15-b wow fadeInUp" data-wow-delay="0.1s">
+                        Tudo que você precisa para evoluir
+                    </h2>
+                    <p class="fs-8 section-desc m-auto-lr wow fadeInUp" data-wow-delay="0.2s">
+                        Ferramentas poderosas para professores corrigirem e alunos aprenderem com eficiência.
+                    </p>
+                </div>
+                <div class="row gap-20">
+                    <div class="c-xs-12 c-sm-6 c-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="feature-card">
+                            <div class="feature-icon purple"><span class="iccon-edit-1"></span></div>
+                            <h3 class="fs-10 fw-700 m-10-b">Correção Inteligente</h3>
+                            <p class="fs-7 lh-1-7" style="color: var(--gray-500);">Análise automática de gramática, ortografia, concordância e coesão textual com sugestões em tempo real.</p>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-sm-6 c-lg-4 wow fadeInUp" data-wow-delay="0.2s">
+                        <div class="feature-card">
+                            <div class="feature-icon blue"><span class="iccon-chart-1"></span></div>
+                            <h3 class="fs-10 fw-700 m-10-b">Notas Detalhadas</h3>
+                            <p class="fs-7 lh-1-7" style="color: var(--gray-500);">Sistema de avaliação por competências com nota geral e critérios individuais como coerência, argumentação e proposta.</p>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-sm-6 c-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                        <div class="feature-card">
+                            <div class="feature-icon amber"><span class="iccon-comment-1"></span></div>
+                            <h3 class="fs-10 fw-700 m-10-b">Feedback do Professor</h3>
+                            <p class="fs-7 lh-1-7" style="color: var(--gray-500);">Professores adicionam comentários diretamente no texto, apontando erros e sugerindo melhorias personalizadas.</p>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-sm-6 c-lg-4 wow fadeInUp" data-wow-delay="0.4s">
+                        <div class="feature-card">
+                            <div class="feature-icon green"><span class="iccon-graduation-1"></span></div>
+                            <h3 class="fs-10 fw-700 m-10-b">Redações ENEM</h3>
+                            <p class="fs-7 lh-1-7" style="color: var(--gray-500);">Correção baseada nas 5 competências do ENEM com dicas de como melhorar em cada critério da banca avaliadora.</p>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-sm-6 c-lg-4 wow fadeInUp" data-wow-delay="0.5s">
+                        <div class="feature-card">
+                            <div class="feature-icon red"><span class="iccon-exclamation-1"></span></div>
+                            <h3 class="fs-10 fw-700 m-10-b">Erros Destacados</h3>
+                            <p class="fs-7 lh-1-7" style="color: var(--gray-500);">Cada erro é sublinhado e categorizado: gramática, ortografia, estilo, pontuação. Aprenda com cada correção feita.</p>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-sm-6 c-lg-4 wow fadeInUp" data-wow-delay="0.6s">
+                        <div class="feature-card">
+                            <div class="feature-icon indigo"><span class="iccon-chart-2"></span></div>
+                            <h3 class="fs-10 fw-700 m-10-b">Progresso do Aluno</h3>
+                            <p class="fs-7 lh-1-7" style="color: var(--gray-500);">Dashboard com historico de redações, evolução de notas e estatísticas de erros mais frequentes ao longo do tempo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it Works Section -->
+        <section class="p-80-tb xs-p-50-tb" id="como-funciona">
+            <div class="container">
+                <div class="text-center m-50-b">
+                    <span class="section-badge wow fadeInUp">
+                        <span class="iccon-rocket-1"></span> Como Funciona
+                    </span>
+                    <h2 class="fs-13 sm-fs-11 xs-fs-10 fw-800 section-title m-15-b wow fadeInUp" data-wow-delay="0.1s">
+                        Simples, rápido e eficiente
+                    </h2>
+                    <p class="fs-8 section-desc m-auto-lr wow fadeInUp" data-wow-delay="0.2s">
+                        Em poucos passos você já começa a melhorar suas redações.
+                    </p>
+                </div>
+                <div class="row gap-30">
+                    <div class="c-xs-12 c-sm-6 c-md-3 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="step-card">
+                            <div class="step-connector sm-d-none"></div>
+                            <div class="step-number">1</div>
+                            <h4 class="fs-10 fw-700 m-10-b">Cadastre-se</h4>
+                            <p class="fs-7 lh-1-6" style="color: var(--gray-500);">Crie sua conta como professor ou aluno em menos de 1 minuto.</p>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-sm-6 c-md-3 wow fadeInUp" data-wow-delay="0.2s">
+                        <div class="step-card">
+                            <div class="step-connector sm-d-none"></div>
+                            <div class="step-number">2</div>
+                            <h4 class="fs-10 fw-700 m-10-b">Envie o Texto</h4>
+                            <p class="fs-7 lh-1-6" style="color: var(--gray-500);">Cole ou digite seu texto, redação ou trabalho escolar na plataforma.</p>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-sm-6 c-md-3 wow fadeInUp" data-wow-delay="0.3s">
+                        <div class="step-card">
+                            <div class="step-connector sm-d-none"></div>
+                            <div class="step-number">3</div>
+                            <h4 class="fs-10 fw-700 m-10-b">Receba a Correção</h4>
+                            <p class="fs-7 lh-1-6" style="color: var(--gray-500);">IA analisa e professor revisa: erros marcados, sugestões e nota detalhada.</p>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-sm-6 c-md-3 wow fadeInUp" data-wow-delay="0.4s">
+                        <div class="step-card">
+                            <div class="step-number">4</div>
+                            <h4 class="fs-10 fw-700 m-10-b">Evolua</h4>
+                            <p class="fs-7 lh-1-6" style="color: var(--gray-500);">Acompanhe seu progresso, corrija erros e veja sua nota subir a cada redação.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo Section -->
+        <section class="p-80-tb xs-p-50-tb" id="demonstracao" style="background: var(--gray-50);">
+            <div class="container">
+                <div class="text-center m-50-b">
+                    <span class="section-badge wow fadeInUp">
+                        <span class="iccon-edit-3"></span> Demonstração
+                    </span>
+                    <h2 class="fs-13 sm-fs-11 xs-fs-10 fw-800 section-title m-15-b wow fadeInUp" data-wow-delay="0.1s">
+                        Experimente agora mesmo
+                    </h2>
+                    <p class="fs-8 section-desc m-auto-lr wow fadeInUp" data-wow-delay="0.2s">
+                        Cole um texto abaixo e veja a mágica acontecer. Correção instantânea e gratuita.
+                    </p>
+                </div>
+                <div class="row f-justify-center">
+                    <div class="c-xs-12 c-md-10 c-lg-8 wow fadeInUp" data-wow-delay="0.3s">
+                        <div class="demo-container">
+                            <div class="demo-header">
+                                <span class="demo-dot" style="background: #EF4444;"></span>
+                                <span class="demo-dot" style="background: #F59E0B;"></span>
+                                <span class="demo-dot" style="background: #10B981;"></span>
+                                <span style="color: rgba(255,255,255,0.7); font-size: 13px; margin-left: 8px;">Editor de Texto</span>
+                            </div>
+                            <div class="example-label">
+                                <span class="iccon-idea-1 m-5-r"></span> Clique em um exemplo para testar:
+                            </div>
+                            <div class="example-chips">
+                                <button class="example-chip" onclick="loadExample('pessimo')">
+                                    <span class="chip-dot red"></span> Muitos erros
+                                </button>
+                                <button class="example-chip" onclick="loadExample('medio')">
+                                    <span class="chip-dot amber"></span> Texto mediano
+                                </button>
+                                <button class="example-chip" onclick="loadExample('bom')">
+                                    <span class="chip-dot green"></span> Texto bom
+                                </button>
+                                <button class="example-chip" onclick="loadExample('enem')">
+                                    <span class="chip-dot blue"></span> Redação ENEM
+                                </button>
+                                <button class="example-chip" onclick="loadExample('informal')">
+                                    <span class="chip-dot purple"></span> Texto informal
+                                </button>
+                            </div>
+                            <textarea class="demo-textarea" id="demoTextarea" placeholder="Cole seu texto aqui para receber uma correção instantânea...&#10;&#10;Exemplo: &quot;A educacao no Brasil vem passando por diversas transformacoes. Nesse sentido, e importante considerar que as politicas publicas afeta diretamente o modo como a populaçao tem acesso ao ensino.&quot;"></textarea>
+                            <div class="demo-toolbar">
+                                <div class="d-flex f-items-center f-gap-15">
+                                    <span class="fs-4" style="color: var(--gray-400);" id="charCount">0 caracteres</span>
+                                    <span id="apiBadge" class="fs-3 fw-700" style="display:none; padding:3px 10px; background:#10B981; color:#fff; border-radius:50px;">Python API</span>
+                                </div>
+                                <button class="btn btn-primary btn-sm" onclick="analyzeText()" id="btnCorrigir">
+                                    <span class="iccon-search-1"></span> Corrigir Texto
+                                </button>
+                            </div>
+                            <div class="demo-result" id="demoResult">
+                                <div class="row gap-20">
+                                    <div class="c-xs-12 c-md-8">
+                                        <h4 class="fs-9 fw-700 m-15-b" style="color: var(--gray-700);">
+                                            <span class="iccon-exclamation-1 m-5-r" style="color: var(--danger);"></span>
+                                            Erros Encontrados
+                                        </h4>
+                                        <div id="errorsList"></div>
+                                    </div>
+                                    <div class="c-xs-12 c-md-4 text-center">
+                                        <h4 class="fs-9 fw-700 m-15-b" style="color: var(--gray-700);">Sua Nota</h4>
+                                        <div class="grade-circle medium" id="gradeCircle">
+                                            <span class="fs-14 fw-800" id="gradeValue">--</span>
+                                            <span class="fs-4">/10</span>
+                                        </div>
+                                        <p class="fs-6 m-15-t" style="color: var(--gray-500);" id="gradeMessage"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- For Who Section -->
+        <section class="p-80-tb xs-p-50-tb" id="para-quem">
+            <div class="container">
+                <div class="text-center m-50-b">
+                    <span class="section-badge wow fadeInUp">
+                        <span class="iccon-bb-users"></span> Para Quem
+                    </span>
+                    <h2 class="fs-13 sm-fs-11 xs-fs-10 fw-800 section-title m-15-b wow fadeInUp" data-wow-delay="0.1s">
+                        Feito para professores e alunos
+                    </h2>
+                    <p class="fs-8 section-desc m-auto-lr wow fadeInUp" data-wow-delay="0.2s">
+                        Cada perfil tem ferramentas pensadas para suas necessidades.
+                    </p>
+                </div>
+                <div class="row gap-30 f-justify-center">
+                    <div class="c-xs-12 c-md-5 wow fadeInLeft" data-wow-delay="0.2s">
+                        <div class="persona-card">
+                            <div class="persona-header teacher text-center p-30-all">
+                                <span class="iccon-bb-graduation-cap" style="font-size: 48px; color: #fff;"></span>
+                                <h3 class="fs-11 fw-700 m-10-t" style="color: #fff;">Professor</h3>
+                                <p class="fs-7" style="color: rgba(255,255,255,0.8);">Gerencie turmas e corrija com eficiência</p>
+                            </div>
+                            <ul class="persona-list">
+                                <li><span class="iccon-check-1 li-icon"></span> Painel com todas as turmas e alunos</li>
+                                <li><span class="iccon-check-1 li-icon"></span> Correção assistida por IA</li>
+                                <li><span class="iccon-check-1 li-icon"></span> Comentários diretos no texto do aluno</li>
+                                <li><span class="iccon-check-1 li-icon"></span> Atribuição de notas por competência</li>
+                                <li><span class="iccon-check-1 li-icon"></span> Relatório de evolução da turma</li>
+                                <li><span class="iccon-check-1 li-icon"></span> Banco de temas para redações</li>
+                            </ul>
+                            <div class="p-20-all text-center">
+                                <a href="#" class="btn btn-primary">Sou Professor</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-md-5 wow fadeInRight" data-wow-delay="0.2s">
+                        <div class="persona-card">
+                            <div class="persona-header student text-center p-30-all">
+                                <span class="iccon-book-2" style="font-size: 48px; color: #fff;"></span>
+                                <h3 class="fs-11 fw-700 m-10-t" style="color: #fff;">Aluno</h3>
+                                <p class="fs-7" style="color: rgba(255,255,255,0.8);">Aprenda com cada erro e melhore suas notas</p>
+                            </div>
+                            <ul class="persona-list">
+                                <li><span class="iccon-check-1 li-icon"></span> Envio ilimitado de textos e redações</li>
+                                <li><span class="iccon-check-1 li-icon"></span> Correção automática instantânea</li>
+                                <li><span class="iccon-check-1 li-icon"></span> Erros explicados de forma didática</li>
+                                <li><span class="iccon-check-1 li-icon"></span> Histórico completo de redações</li>
+                                <li><span class="iccon-check-1 li-icon"></span> Gráfico de evolução pessoal</li>
+                                <li><span class="iccon-check-1 li-icon"></span> Dicas personalizadas de melhoria</li>
+                            </ul>
+                            <div class="p-20-all text-center">
+                                <a href="#" class="btn btn-primary" style="background: var(--secondary); box-shadow: 0 4px 16px rgba(14,165,233,0.35);">Sou Aluno</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="p-80-tb xs-p-50-tb" style="background: var(--gray-50);">
+            <div class="container">
+                <div class="text-center m-50-b">
+                    <span class="section-badge wow fadeInUp">
+                        <span class="iccon-comment-1"></span> Depoimentos
+                    </span>
+                    <h2 class="fs-13 sm-fs-11 xs-fs-10 fw-800 section-title m-15-b wow fadeInUp" data-wow-delay="0.1s">
+                        O que dizem nossos usuários
+                    </h2>
+                </div>
+                <div class="row gap-20">
+                    <div class="c-xs-12 c-md-4 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="testimonial-card">
+                            <div class="testimonial-stars">
+                                <span class="iccon-star-1"></span><span class="iccon-star-1"></span><span class="iccon-star-1"></span><span class="iccon-star-1"></span><span class="iccon-star-1"></span>
+                            </div>
+                            <p class="testimonial-text">"Reduzi meu tempo de correção pela metade. A IA já marca os erros principais e eu foco no feedback qualitativo para cada aluno. Mudou minha rotina como professor."</p>
+                            <div class="testimonial-author">
+                                <div class="testimonial-avatar" style="background: var(--primary);">MC</div>
+                                <div>
+                                    <strong class="fs-7 fw-700">Marcos Costa</strong>
+                                    <p class="fs-5" style="color: var(--gray-400);">Professor de Português</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-md-4 wow fadeInUp" data-wow-delay="0.2s">
+                        <div class="testimonial-card">
+                            <div class="testimonial-stars">
+                                <span class="iccon-star-1"></span><span class="iccon-star-1"></span><span class="iccon-star-1"></span><span class="iccon-star-1"></span><span class="iccon-star-1"></span>
+                            </div>
+                            <p class="testimonial-text">"Minha nota no ENEM subiu de 600 para 840 em 4 meses de uso. As dicas por competência são incríveis e me ajudaram a entender exatamente onde eu errava."</p>
+                            <div class="testimonial-author">
+                                <div class="testimonial-avatar" style="background: var(--secondary);">AS</div>
+                                <div>
+                                    <strong class="fs-7 fw-700">Ana Silva</strong>
+                                    <p class="fs-5" style="color: var(--gray-400);">Aluna - 3o ano EM</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-md-4 wow fadeInUp" data-wow-delay="0.3s">
+                        <div class="testimonial-card">
+                            <div class="testimonial-stars">
+                                <span class="iccon-star-1"></span><span class="iccon-star-1"></span><span class="iccon-star-1"></span><span class="iccon-star-1"></span><span class="iccon-star-1"></span>
+                            </div>
+                            <p class="testimonial-text">"Uso com minhas 5 turmas. O painel de evolução dos alunos me ajuda a identificar quem precisa de mais atenção. Ferramenta essencial para qualquer escola."</p>
+                            <div class="testimonial-author">
+                                <div class="testimonial-avatar" style="background: #7C3AED;">RL</div>
+                                <div>
+                                    <strong class="fs-7 fw-700">Renata Lima</strong>
+                                    <p class="fs-5" style="color: var(--gray-400);">Coordenadora Pedagógica</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="p-80-tb xs-p-50-tb" id="planos">
+            <div class="container">
+                <div class="text-center m-50-b">
+                    <span class="section-badge wow fadeInUp">
+                        <span class="iccon-tag-1"></span> Planos
+                    </span>
+                    <h2 class="fs-13 sm-fs-11 xs-fs-10 fw-800 section-title m-15-b wow fadeInUp" data-wow-delay="0.1s">
+                        Escolha o plano ideal
+                    </h2>
+                    <p class="fs-8 section-desc m-auto-lr wow fadeInUp" data-wow-delay="0.2s">
+                        Comece gratuitamente e evolua conforme sua necessidade.
+                    </p>
+                </div>
+                <div class="row gap-25 f-items-end f-justify-center">
+                    <div class="c-xs-12 c-sm-6 c-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="pricing-card">
+                            <h3 class="fs-10 fw-700 m-5-b" style="color: var(--gray-500);">Gratuito</h3>
+                            <p class="fs-6 m-20-b" style="color: var(--gray-400);">Para começar a explorar</p>
+                            <div class="pricing-price m-5-b">R$0</div>
+                            <p class="fs-6 m-25-b" style="color: var(--gray-400);">Para sempre</p>
+                            <ul class="pricing-features">
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> 5 correções por mês</li>
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> Análise de gramática básica</li>
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> Nota geral do texto</li>
+                                <li><span class="iccon-close-1" style="color: var(--gray-300);"></span> Feedback por competência</li>
+                                <li><span class="iccon-close-1" style="color: var(--gray-300);"></span> Painel do professor</li>
+                            </ul>
+                            <a href="#" class="btn btn-outline" style="width: 100%; justify-content: center;">Começar Grátis</a>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-sm-6 c-lg-4 wow fadeInUp" data-wow-delay="0.2s">
+                        <div class="pricing-card featured">
+                            <div class="pricing-popular">Mais Popular</div>
+                            <h3 class="fs-10 fw-700 m-5-b" style="color: var(--primary);">Estudante Pro</h3>
+                            <p class="fs-6 m-20-b" style="color: var(--gray-400);">Para quem quer evoluir rápido</p>
+                            <div class="pricing-price m-5-b">R$29<span>/mês</span></div>
+                            <p class="fs-6 m-25-b" style="color: var(--gray-400);">Cancele quando quiser</p>
+                            <ul class="pricing-features">
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> Correções ilimitadas</li>
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> Análise completa + estilo</li>
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> Nota por competência ENEM</li>
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> Histórico e evolução</li>
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> Dicas personalizadas de IA</li>
+                            </ul>
+                            <a href="#" class="btn btn-primary" style="width: 100%; justify-content: center;">Assinar Agora</a>
+                        </div>
+                    </div>
+                    <div class="c-xs-12 c-sm-6 c-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                        <div class="pricing-card">
+                            <h3 class="fs-10 fw-700 m-5-b" style="color: var(--gray-500);">Escola</h3>
+                            <p class="fs-6 m-20-b" style="color: var(--gray-400);">Para instituições e professores</p>
+                            <div class="pricing-price m-5-b">R$99<span>/mês</span></div>
+                            <p class="fs-6 m-25-b" style="color: var(--gray-400);">Até 50 alunos inclusos</p>
+                            <ul class="pricing-features">
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> Tudo do Estudante Pro</li>
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> Painel do professor completo</li>
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> Gerenciamento de turmas</li>
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> Relatórios de desempenho</li>
+                                <li><span class="iccon-check-1" style="color: var(--success);"></span> Banco de temas e provas</li>
+                            </ul>
+                            <a href="#" class="btn btn-outline" style="width: 100%; justify-content: center;">Falar com Consultor</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section p-80-tb xs-p-50-tb">
+            <div class="container ps-relative z-index-1 text-center">
+                <h2 class="fs-14 sm-fs-12 xs-fs-10 fw-800 m-20-b wow fadeInUp" style="color: #fff;">
+                    Comece a melhorar seus textos hoje
+                </h2>
+                <p class="fs-9 sm-fs-8 m-30-b m-auto-lr wow fadeInUp" data-wow-delay="0.1s" style="color: rgba(255,255,255,0.7); max-width: 550px;">
+                    Junte-se a milhares de professores e alunos que já transformaram a forma de aprender e ensinar redação.
+                </p>
+                <div class="d-flex f-gap-15 f-justify-center f-wrap wow fadeInUp" data-wow-delay="0.2s">
+                    <a href="#" class="btn btn-white btn-lg">
+                        <span class="iccon-rocket-1"></span> Criar Conta Grátis
+                    </a>
+                    <a href="#demonstracao" class="btn btn-lg" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3);">
+                        <span class="iccon-play-1"></span> Ver Demonstração
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer p-50-tb">
+        <div class="container">
+            <div class="row gap-30">
+                <div class="c-xs-12 c-md-4">
+                    <div class="logo-text m-15-b" style="color: #fff;">Corrige<span>AI</span></div>
+                    <p class="fs-6 lh-1-7" style="color: var(--gray-400);">Plataforma inteligente de correção de textos e redações para professores e alunos de todo o Brasil.</p>
+                    <div class="d-flex f-gap-15 m-20-t">
+                        <a href="#" class="footer-link fs-10"><span class="iccon-instagram-1"></span></a>
+                        <a href="#" class="footer-link fs-10"><span class="iccon-facebook-1"></span></a>
+                        <a href="#" class="footer-link fs-10"><span class="iccon-youtube-1"></span></a>
+                        <a href="#" class="footer-link fs-10"><span class="iccon-linkedin-1"></span></a>
+                    </div>
+                </div>
+                <div class="c-xs-6 c-md-2">
+                    <h4 class="fs-7 fw-700 m-15-b" style="color: #fff;">Produto</h4>
+                    <div class="d-flex f-col f-gap-10">
+                        <a href="#funcionalidades" class="footer-link">Funcionalidades</a>
+                        <a href="#planos" class="footer-link">Planos</a>
+                        <a href="#" class="footer-link">API</a>
+                        <a href="#" class="footer-link">Atualizações</a>
+                    </div>
+                </div>
+                <div class="c-xs-6 c-md-2">
+                    <h4 class="fs-7 fw-700 m-15-b" style="color: #fff;">Suporte</h4>
+                    <div class="d-flex f-col f-gap-10">
+                        <a href="#" class="footer-link">Central de Ajuda</a>
+                        <a href="#" class="footer-link">Contato</a>
+                        <a href="#" class="footer-link">FAQ</a>
+                        <a href="#" class="footer-link">Comunidade</a>
+                    </div>
+                </div>
+                <div class="c-xs-12 c-md-4">
+                    <h4 class="fs-7 fw-700 m-15-b" style="color: #fff;">Newsletter</h4>
+                    <p class="fs-6 m-15-b" style="color: var(--gray-400);">Receba dicas de redação e novidades da plataforma.</p>
+                    <div class="d-flex f-gap-10">
+                        <input type="email" placeholder="Seu melhor e-mail" style="flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--gray-600); background: var(--gray-700); color: #fff; font-size: 14px; outline: none;">
+                        <button class="btn btn-primary btn-sm">Enviar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t m-40-t p-30-t text-center" style="border-color: var(--gray-700);">
+                <p class="fs-5" style="color: var(--gray-500);">CorrigeAI 2026. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.squeleton.dev/squeleton-scripts.v4.min.js"></script>
+    <script>
+        // ========================================
+        // CONFIG - URL da API Python
+        // ========================================
+        var API_URL = 'http://localhost:5000/api/analisar';
+        var USE_API = false; // será true se o servidor estiver online
+
+        // Verificar se API está disponível
+        fetch('http://localhost:5000/api/status', { method: 'GET' })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.status === 'online') {
+                    USE_API = true;
+                    console.log('[CorrigeAI] API Python conectada!', data.language_tool ? '(com LanguageTool)' : '(regras customizadas)');
+                    var badge = document.getElementById('apiBadge');
+                    if (badge) { badge.style.display = 'inline-flex'; badge.textContent = data.language_tool ? 'Python + LanguageTool' : 'Python API'; }
+                }
+            })
+            .catch(function() {
+                console.log('[CorrigeAI] API Python offline. Usando análise local (JS).');
+            });
+
+        // ========================================
+        // TEXTOS DE EXEMPLO
+        // ========================================
+        var exampleTexts = {
+            pessimo: "A educacao no Brasil vem passando por diversas transformacoes ao longo dos anos. Nesse sentido e importante considerar que as politicas publicas afeta diretamente o modo como a populaçao tem acesso ao ensino. Muitas criancas nao tem oportunidade de estudar e isso e muito triste porque nos dias de hoje a gente precisa de educaçao pra ser alguem na vida.\n\nDiante disso as escolas precisa melhorar mais porque os professores nao recebe salario bom e as vezes falta material. Tambem tem o problema da violencia que afeta muito os alunos. Sendo assim conclui-se que o governo tem que fazer alguma coisa pra resolver esse problema que afeta muitas pessoas no nosso pais",
+
+            medio: "A educação no Brasil passa por um momento de transformação impulsionada pelas novas tecnologias. Nesse sentido, é possível observar que diversas escolas vem adotando ferramentas digitais em suas metodologias de ensino.\n\nPor um lado, a tecnologia facilita o acesso a conteudos educacionais e permite que alunos de regiões remotas tenha contato com materiais de qualidade. Por outro lado, a desigualdade digital ainda e uma barreira significativa, pois muitas familias não possuem acesso à internet.\n\nDessa forma, e necessario que as politicas públicas invistam tanto na infraestrutura tecnológica das escolas quanto na capacitação dos professores. Somente assim será possivel garantir que a transformação digital na educação beneficie a todos os estudantes brasileiros.",
+
+            bom: "A revolução digital nas salas de aula: desafios e oportunidades para a educação brasileira\n\nA integração de tecnologias educacionais no sistema de ensino brasileiro representa uma das mais significativas transformações pedagógicas das últimas décadas. Embora o processo tenha sido acelerado por circunstâncias imprevistas, como a pandemia de 2020, seus efeitos revelam tanto oportunidades promissoras quanto desafios estruturais que merecem atenção.\n\nEm primeiro lugar, as plataformas digitais democratizaram o acesso ao conhecimento. Estudantes de municípios afastados dos grandes centros passaram a ter contato com videoaulas, bibliotecas virtuais e ferramentas interativas que antes eram privilégio de instituições bem equipadas. Essa ampliação do alcance educacional contribui diretamente para a redução das desigualdades regionais.\n\nEntretanto, é fundamental reconhecer que a simples disponibilização de ferramentas tecnológicas não garante uma educação de qualidade. A formação continuada dos docentes, o desenvolvimento de metodologias ativas adaptadas ao ambiente digital e o investimento em infraestrutura de conectividade são pilares indispensáveis para o sucesso dessa transição.\n\nPortanto, cabe ao poder público, em parceria com o setor privado e a comunidade acadêmica, elaborar políticas integradas que contemplem infraestrutura, capacitação e produção de conteúdo pedagógico digital. Somente por meio de um esforço coordenado será possível converter o potencial tecnológico em ganhos reais de aprendizagem para milhões de estudantes brasileiros.",
+
+            enem: "Tema: Os desafios da saude mental entre jovens no Brasil\n\nA saude mental dos jovens brasileiros tem se tornado uma preocupaçao crescente nos ultimos anos. Segundo dados da Organizaçao Mundial da Saude, o Brasil e o pais com maior indice de ansiedade no mundo, e os adolescentes estao entre os mais afetados. Nesse sentido, e fundamental analisar as causas desse fenomeno e propor soluçoes eficazes.\n\nEm primeiro lugar, as redes sociais tem papel significativo no agravamento dos transtornos mentais entre os jovens. A exposiçao constante a padroes irreais de beleza e sucesso gera frustraçao e baixa autoestima. Alem disso muitos jovens sofre cyberbullying o que agrava quadros de depressao e ansiedade.\n\nEm segundo lugar, o sistema educacional brasileiro nao oferece suporte adequado. As escolas raramente conta com psicologos e as vezes o tema da saude mental ainda e tratado como tabu. Os estudantes que apresenta sinais de sofrimento psiquico frequentemente nao encontra acolhimento no ambiente escolar.\n\nDiante disso, e necessario que o Ministerio da Saude em parceria com o Ministerio da Educaçao implemente programas de conscientizaçao sobre saude mental nas escolas. Tambem e preciso ampliar o acesso a atendimento psicologico gratuito pelo SUS, especialmente para a populaçao jovem. Somente assim sera possivel enfrentar essa crise silenciosa que afeta milhoes de brasileiros.",
+
+            informal: "ent galera vou falar sobre a educaçao no brasil ne pq tipo assim a gente sabe q ta tudo meio complicado. os professor ganha pouco e as escola ta caindo aos pedaços. ai vc quer q o aluno aprenda como??\n\ndai vem o governo e fala q vai melhorar mas nunca melhora ne. ja era pra ter resolvido isso faz tempo. a real e q ngm liga pra educaçao nesse pais e isso me deixa mt triste pq sem estudo a gente n vai pra lugar nenhum\n\ntbm tem a questao da tecnologia q podia ajudar muito mas nas escola publica n tem nem computador direito imagina internet boa kkk. enfim e isso galera educaçao no brasil precisa melhorar urgente"
+        };
+
+        // ========================================
+        // CARREGAR EXEMPLO
+        // ========================================
+        function loadExample(key) {
+            var ta = document.getElementById('demoTextarea');
+            ta.value = exampleTexts[key];
+            ta.dispatchEvent(new Event('input'));
+            document.getElementById('demoResult').classList.remove('active');
+            ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            ta.focus();
+            if (typeof Toastify !== 'undefined') {
+                var labels = { pessimo: 'Muitos erros', medio: 'Texto mediano', bom: 'Texto bom', enem: 'Redação ENEM', informal: 'Texto informal' };
+                Toastify({ text: 'Exemplo carregado: ' + labels[key] + '. Clique em "Corrigir Texto"!', duration: 2500, gravity: 'top', position: 'center', style: { background: '#4F46E5', borderRadius: '10px', fontSize: '14px' } }).showToast();
+            }
+        }
+
+        // ========================================
+        // HEADER SCROLL
+        // ========================================
+        window.addEventListener('scroll', function() {
+            var header = document.getElementById('siteHeader');
+            if (window.scrollY > 50) { header.classList.add('scrolled'); }
+            else { header.classList.remove('scrolled'); }
+        });
+
+        // ========================================
+        // CONTADOR DE CARACTERES E PALAVRAS
+        // ========================================
+        var textarea = document.getElementById('demoTextarea');
+        var charCount = document.getElementById('charCount');
+        textarea.addEventListener('input', function() {
+            var len = this.value.length;
+            var wds = this.value.trim() ? this.value.trim().split(/\s+/).length : 0;
+            charCount.textContent = len + ' caracteres | ' + wds + ' palavras';
+        });
+
+        // ========================================
+        // RENDERIZAR RESULTADOS (compartilhado)
+        // ========================================
+        function renderResults(data) {
+            var result = document.getElementById('demoResult');
+            var errorsList = document.getElementById('errorsList');
+            var gradeValue = document.getElementById('gradeValue');
+            var gradeCircle = document.getElementById('gradeCircle');
+            var gradeMessage = document.getElementById('gradeMessage');
+
+            // Limpar resumos antigos
+            var oldSummaries = gradeCircle.parentElement.querySelectorAll('.analysis-summary');
+            oldSummaries.forEach(function(el) { el.remove(); });
+
+            // Erros
+            var errorsHTML = '';
+            data.errors.forEach(function(error) {
+                var tagLabel = error.type === 'grammar' ? 'Gramática' : error.type === 'style' ? 'Estilo' : 'Dica';
+                errorsHTML += '<div class="error-item ' + error.type + '">' +
+                    '<div style="flex-shrink:0"><span class="error-tag ' + error.type + '">' + tagLabel + '</span></div>' +
+                    '<div><strong class="fs-7">' + error.text + '</strong>' +
+                    '<p class="fs-6 m-5-t" style="color:var(--gray-500);">' + error.suggestion + '</p></div></div>';
+            });
+            errorsList.innerHTML = errorsHTML;
+
+            // Nota
+            gradeValue.textContent = data.grade;
+            gradeCircle.className = 'grade-circle ' + data.grade_class;
+            gradeMessage.textContent = data.grade_label;
+
+            // Resumo
+            var s = data.stats;
+            var sourceLabel = s.has_language_tool ? 'Python + LanguageTool' : (USE_API ? 'Python (regras)' : 'JavaScript (local)');
+            var summaryHTML = '<div class="analysis-summary" style="margin-top:16px;padding:12px 16px;background:var(--gray-50);border-radius:8px;text-align:left;">' +
+                '<p class="fs-6 fw-600 m-5-b" style="color:var(--gray-700);">Resumo da análise:</p>' +
+                '<p class="fs-5" style="color:var(--gray-500);">' +
+                '<span style="color:var(--danger);">' + s.grammar_errors + ' erro(s) gramaticais</span> &middot; ' +
+                '<span style="color:var(--accent);">' + s.style_errors + ' obs. de estilo</span><br>' +
+                s.word_count + ' palavras &middot; ' +
+                s.sentence_count + ' frases &middot; ' +
+                s.paragraph_count + ' parágrafo(s)' +
+                (s.vocabulary_richness ? ' &middot; ' + s.vocabulary_richness + '% vocabulário único' : '') +
+                '</p>' +
+                '<p class="fs-4 m-5-t" style="color:var(--gray-400);">Motor: <strong>' + sourceLabel + '</strong></p>' +
+                '</div>';
+            gradeCircle.parentElement.insertAdjacentHTML('beforeend', summaryHTML);
+
+            result.classList.add('active');
+            result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ========================================
+        // ANÁLISE VIA API PYTHON
+        // ========================================
+        function analyzeViaAPI(text) {
+            var btn = document.getElementById('btnCorrigir');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="iccon-bb-loader anima-pulse"></span> Analisando...';
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ texto: text }),
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    if (typeof Toastify !== 'undefined') {
+                        Toastify({ text: data.error, duration: 3000, gravity: 'top', position: 'center', style: { background: '#EF4444', borderRadius: '10px' } }).showToast();
+                    }
+                    return;
+                }
+                renderResults(data);
+            })
+            .catch(function(err) {
+                console.error('[CorrigeAI] Erro na API:', err);
+                USE_API = false;
+                analyzeLocal(text); // fallback para JS
+                if (typeof Toastify !== 'undefined') {
+                    Toastify({ text: 'API offline. Usando análise local.', duration: 2000, gravity: 'top', position: 'center', style: { background: '#F59E0B', borderRadius: '10px' } }).showToast();
+                }
+            })
+            .finally(function() {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="iccon-search-1"></span> Corrigir Texto';
+            });
+        }
+
+        // ========================================
+        // ANÁLISE LOCAL (JS) - FALLBACK
+        // ========================================
+        function analyzeLocal(text) {
+            var errors = [];
+            var lt = text.toLowerCase();
+            var words = text.trim().split(/\s+/);
+            var wordCount = words.length;
+            var sentences = text.split(/[.!?]+/).filter(function(s) { return s.trim().length > 0; });
+            var paragraphs = text.split(/\n\s*\n/).filter(function(p) { return p.trim().length > 0; });
+
+            // --- GRAMÁTICA ---
+            if (!/ção/.test(text) && /çao|cao/.test(lt))
+                errors.push({ type: 'grammar', text: 'Falta de acento em "-ção"', suggestion: 'Corrija "çao"/"cao" para "ção". Ex: educação, situação.' });
+
+            if (/\b(vem|tem)\b/.test(lt) && /\b(diversas|diversos|muitos|muitas|jovens|alunos|professores|escolas|pessoas)\b/.test(lt))
+                errors.push({ type: 'grammar', text: 'Concordância: "vem"/"tem" com sujeito plural', suggestion: 'No plural: "vêm" e "têm" (com circunflexo).' });
+
+            if (/\be\b/.test(text) && !/\bé\b/.test(text) && /\b(importante|necessario|preciso|fundamental|essencial|triste|real)\b/.test(lt))
+                errors.push({ type: 'grammar', text: 'Falta de acento no verbo "é"', suggestion: '"É" leva acento agudo: "É importante..."' });
+
+            if (/\bafeta\b/.test(lt) && /\b(politicas|tecnologias|mudanças|transformações|problemas|redes)\b/.test(lt))
+                errors.push({ type: 'grammar', text: '"afeta" deveria ser "afetam"', suggestion: 'Sujeito no plural → verbo no plural.' });
+
+            if (/\b(escolas|professores|alunos|jovens|pessoas)\b[^.!?]{0,30}\b(precisa|conta|recebe|sofre|ganha|apresenta|encontra)\b/.test(lt))
+                errors.push({ type: 'grammar', text: 'Concordância verbal: singular com sujeito plural', suggestion: 'Ex: "professores recebem" (não "recebe").' });
+
+            if (/\b(alunos|estudantes|jovens|pessoas)\b.*\btenha\b/.test(lt))
+                errors.push({ type: 'grammar', text: '"tenha" deveria ser "tenham"', suggestion: 'Plural: "para que alunos tenham acesso".' });
+
+            var ma = [];
+            if (/\btambem\b/.test(lt)) ma.push('"também"');
+            if (/\bnecessario\b/.test(lt)) ma.push('"necessário"');
+            if (/\bpossivel\b/.test(lt)) ma.push('"possível"');
+            if (/\bultimos\b/.test(lt)) ma.push('"últimos"');
+            if (/\bsaude\b/.test(lt) && !/\bsaúde\b/.test(text)) ma.push('"saúde"');
+            if (/\bsera\b/.test(lt) && !/\bserá\b/.test(text)) ma.push('"será"');
+            if (/\bfamilias\b/.test(lt)) ma.push('"famílias"');
+            if (/\bconteudos\b/.test(lt)) ma.push('"conteúdos"');
+            if (/\bindice\b/.test(lt)) ma.push('"índice"');
+            if (ma.length > 0)
+                errors.push({ type: 'grammar', text: 'Palavras sem acento: ' + ma.join(', '), suggestion: 'Estas palavras exigem acentuação gráfica.' });
+
+            if (/\bnao\b/.test(lt) && !/\bnão\b/.test(text))
+                errors.push({ type: 'grammar', text: 'Falta de til em "não"', suggestion: '"Não" é acentuada.' });
+
+            var inf = [];
+            if (/\bvc\b/.test(lt)) inf.push('"vc"→"você"');
+            if (/\bpq\b/.test(lt)) inf.push('"pq"→"porque"');
+            if (/\btbm\b|\btb\b/.test(lt)) inf.push('"tbm"→"também"');
+            if (/\bmt\b/.test(lt)) inf.push('"mt"→"muito"');
+            if (/\bngm\b/.test(lt)) inf.push('"ngm"→"ninguém"');
+            if (/\bpra\b/.test(lt)) inf.push('"pra"→"para"');
+            if (/\bgalera\b/.test(lt)) inf.push('"galera"(coloquial)');
+            if (/kkk/.test(lt)) inf.push('"kkk"(risada)');
+            if (/\bne\b/.test(lt) && !/\bné\b/.test(text)) inf.push('"ne"→"não é"');
+            if (/\bent\b|\bdai\b/.test(lt)) inf.push('"ent/dai"(gíria)');
+            if (inf.length > 0)
+                errors.push({ type: 'grammar', text: 'Linguagem informal/internetês (' + inf.length + ' termos)', suggestion: 'Evite: ' + inf.join(', ') + '.' });
+
+            var lowerStarts = 0;
+            sentences.forEach(function(s, i) { if (i > 0 && /^[a-záàâãéèêíïóôõúüç]/.test(s.trim())) lowerStarts++; });
+            if (lowerStarts > 0)
+                errors.push({ type: 'grammar', text: lowerStarts + ' frase(s) sem letra maiúscula', suggestion: 'Inicie frases com maiúscula.' });
+
+            // --- ESTILO ---
+            var cli = [];
+            if (/nesse sentido/.test(lt)) cli.push('"nesse sentido"');
+            if (/diante disso/.test(lt)) cli.push('"diante disso"');
+            if (/dessa forma/.test(lt)) cli.push('"dessa forma"');
+            if (/sendo assim/.test(lt)) cli.push('"sendo assim"');
+            if (/conclui-se que/.test(lt)) cli.push('"conclui-se que"');
+            if (/nos dias de hoje/.test(lt)) cli.push('"nos dias de hoje"');
+            if (/ser algu[eé]m na vida/.test(lt)) cli.push('"ser alguém na vida"');
+            if (cli.length > 0)
+                errors.push({ type: 'style', text: 'Clichês: ' + cli.join(', '), suggestion: 'Substitua por expressões mais originais.' });
+
+            if (!/[.!?]\s*$/.test(text.trim()))
+                errors.push({ type: 'style', text: 'Sem pontuação final', suggestion: 'Finalize com ponto, interrogação ou exclamação.' });
+
+            if (wordCount > 40 && text.split(',').length < 3)
+                errors.push({ type: 'style', text: 'Poucas vírgulas', suggestion: 'Use vírgulas para separar orações e facilitar a leitura.' });
+
+            if (paragraphs.length === 1 && wordCount > 80)
+                errors.push({ type: 'style', text: 'Texto sem parágrafos', suggestion: 'Divida em introdução, desenvolvimento e conclusão.' });
+
+            if (/\b(alguma coisa|fazer algo)\b/.test(lt))
+                errors.push({ type: 'style', text: 'Expressão vaga', suggestion: 'Seja mais específico em suas propostas.' });
+
+            var wf = {}, sw = ['a','o','e','é','de','do','da','em','no','na','os','as','dos','das','um','uma','que','se','por','com','para','não','ao','mais','como','mas','ou','nos','nas','seu','sua','esse','essa','isso','são','foi','ser','ter','há','já'];
+            words.forEach(function(w) { var c = w.toLowerCase().replace(/[^a-záàâãéèêíïóôõúüç]/g, ''); if (c.length > 3 && sw.indexOf(c) === -1) wf[c] = (wf[c]||0)+1; });
+            var rep = []; for (var w in wf) { if (wf[w] >= 4) rep.push('"'+w+'" ('+wf[w]+'x)'); }
+            if (rep.length > 0)
+                errors.push({ type: 'style', text: 'Repetição: ' + rep.join(', '), suggestion: 'Use sinônimos para evitar repetição.' });
+
+            // --- DICAS ---
+            var gc = errors.filter(function(e){return e.type==='grammar'}).length;
+            var sc = errors.filter(function(e){return e.type==='style'}).length;
+
+            if (wordCount < 30) errors.push({ type:'tip', text:'Texto muito curto ('+wordCount+' palavras)', suggestion:'Desenvolva mais seus argumentos.' });
+            else if (wordCount < 100) errors.push({ type:'tip', text:'Texto curto ('+wordCount+' palavras)', suggestion:'Tente 200+ palavras com exemplos e dados.' });
+            else if (wordCount >= 200) errors.push({ type:'tip', text:'Bom volume ('+wordCount+' palavras)', suggestion:'Tamanho adequado.' });
+
+            if (paragraphs.length >= 4) errors.push({ type:'tip', text:'Boa estrutura ('+paragraphs.length+' parágrafos)', suggestion:'Boa divisão de parágrafos.' });
+
+            if (gc === 0 && sc === 0) errors.push({ type:'tip', text:'Nenhum erro encontrado!', suggestion:'Texto muito bem escrito.' });
+            else errors.push({ type:'tip', text:'Continue praticando!', suggestion:'Cada erro corrigido é aprendizado.' });
+
+            // --- NOTA ---
+            var grade = 10 - (gc * 1.2) - (sc * 0.6);
+            if (wordCount > 100) grade += 0.3;
+            if (wordCount > 200) grade += 0.3;
+            if (paragraphs.length >= 3) grade += 0.3;
+            if (paragraphs.length >= 4) grade += 0.2;
+            if (inf.length > 0) grade -= 1.5;
+            grade = Math.max(0.5, Math.min(10, grade));
+            grade = parseFloat(grade.toFixed(1));
+
+            var uniqueWords = {}; words.forEach(function(w){ uniqueWords[w.toLowerCase()] = true; });
+            var vocabRich = Math.round((Object.keys(uniqueWords).length / Math.max(wordCount,1)) * 100);
+
+            renderResults({
+                errors: errors,
+                grade: grade,
+                grade_label: grade >= 7 ? 'Bom trabalho!' : grade >= 5 ? 'Razoável. Corrija os erros.' : 'Precisa de revisão.',
+                grade_class: grade >= 7 ? 'high' : grade >= 5 ? 'medium' : 'low',
+                stats: {
+                    word_count: wordCount, char_count: text.length,
+                    sentence_count: sentences.length, paragraph_count: paragraphs.length,
+                    vocabulary_richness: vocabRich,
+                    grammar_errors: gc, style_errors: sc,
+                    has_language_tool: false,
+                }
+            });
+        }
+
+        // ========================================
+        // FUNÇÃO PRINCIPAL: DECIDIR API OU LOCAL
+        // ========================================
+        function analyzeText() {
+            var text = textarea.value.trim();
+            if (!text) {
+                if (typeof Toastify !== 'undefined') {
+                    Toastify({ text: 'Insira um texto para análise.', duration: 3000, gravity: 'top', position: 'center', style: { background: '#EF4444', borderRadius: '10px' } }).showToast();
+                }
+                return;
+            }
+            if (USE_API) {
+                analyzeViaAPI(text);
+            } else {
+                analyzeLocal(text);
+            }
+        }
+
+        // ========================================
+        // SMOOTH SCROLL
+        // ========================================
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+            anchor.addEventListener('click', function(e) {
+                var href = this.getAttribute('href');
+                if (href === '#') return;
+                e.preventDefault();
+                var target = document.querySelector(href);
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // ========================================
+        // SCROLL REVEAL
+        // ========================================
+        function revealOnScroll() {
+            document.querySelectorAll('.reveal').forEach(function(el) {
+                if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('visible');
+            });
+        }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+    </script>
+
+</body>
+</html>
